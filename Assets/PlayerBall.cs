@@ -1,17 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerBall : MonoBehaviour
 {
     public float jumpPower;
     public int itemCount;
+    public GameManagerLogic manager;
     bool isJumped;
     Rigidbody rigid;
+    new AudioSource audio;
+
     void Awake()
     {
         isJumped = false;
         rigid = GetComponent<Rigidbody>();
+        audio = GetComponent<AudioSource>();
     }
 
     void Update() {
@@ -33,6 +38,23 @@ public class PlayerBall : MonoBehaviour
         if(collision.gameObject.name == "Floor"){
             isJumped = false;
 
+        }
+    }
+
+    
+    void OnTriggerEnter(Collider other) {
+        if(other.gameObject.tag == "Item"){
+            itemCount++;
+            audio.Play();       
+            other.gameObject.SetActive(false);
+        } else if(other.gameObject.tag == "Finish"){
+            if(itemCount == manager.totalItemCount){
+                // Game Clear!
+                SceneManager.LoadScene("Example1_" + (manager.stage + 1).ToString());
+            }else{
+                // Restart..        
+                SceneManager.LoadScene("Example1_" + (manager.stage).ToString());
+            }
         }
     }
 }
